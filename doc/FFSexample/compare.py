@@ -2,7 +2,7 @@ import sys
 import cProfile
 import pstats
 from ctypes import *
-cdll.LoadLibrary("../../libs/boost_1_53_0/libboost_python.so.1.53.0")
+#cdll.LoadLibrary("../../libs/boost_1_53_0/libboost_python.so.1.53.0")
 
 sys.path.append('../../libs')
 
@@ -36,10 +36,10 @@ args = parser.parse_args()
 startTime = time.time()
 
 t = twiss2('assets/ffs.twiss')
-
-m = Map2('assets/ffs.twiss',filenameerr=None, order=args.order, nbProc=args.nbProc)
+t.setAchromat(3)
+#m = Map2('assets/ffs.twiss',filenameerr=None, order=args.order, nbProc=args.nbProc)
 #m = Map2(t, "old", order=args.order)  #old mapclass call
-#m = Map2(t, terr=None, order=args.order, nbProc=args.nbProc)
+m = Map2(t, terr=None, order=args.order, nbProc=args.nbProc)
 
 mm = Map2(filename='assets/fort.18',order=args.order) #from fort call
 

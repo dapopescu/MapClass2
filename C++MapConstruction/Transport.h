@@ -86,6 +86,39 @@ template <class T> Polynom<T> Q43(double L,double K1L, Polynom<T> d) {
  	
 }
 
+
+template <class T> Polynom<T>  Q11A(double L, double K1L, Polynom<T> d) {
+	Polynom<T> K = Polynom<T>(d.order, d.eps, abs(K1L/L)); 
+	return cosp(sqrtp(K) * L);
+} 
+
+template <class T> Polynom<T> Q12A(double L,double K1L, Polynom<T> d) {
+	Polynom<T> K =  Polynom<T>(d.order, d.eps, abs(K1L/L)); 
+ 	return (sqrtp(K).pinv() * sinp(sqrtp(K) * L));
+}
+
+template <class T> Polynom<T> Q21A(double L,double K1L, Polynom<T> d) {
+	Polynom<T> K = Polynom<T>(d.order, d.eps, abs(K1L/L)); 
+ 	return sqrtp(K) * sinp(sqrtp(K) * L) * (-1);
+}
+
+template <class T> Polynom<T> Q33A(double L,double K1L, Polynom<T> d) {
+	Polynom<T> K = Polynom<T>(d.order, d.eps, abs(K1L/L)); 
+ 	return coshp(sqrtp(K) * L);
+}
+
+template <class T> Polynom<T> Q34A(double L,double K1L, Polynom<T> d) {
+	Polynom<T> K =  Polynom<T>(d.order, d.eps, abs(K1L/L)); 
+ 	return sqrtp(K).pinv() * sinhp(sqrtp(K) * L);
+}
+
+template <class T> Polynom<T> Q43A(double L,double K1L, Polynom<T> d) {
+	Polynom<T> K = Polynom<T>(d.order, d.eps, abs(K1L/L)); 
+ 	return sqrtp(K)*sinhp(sqrtp(K) * L);
+ 	
+}
+
+
 template <class T> Polmap<T> QFMap(double L, double K1L, Polynom<T> x, Polynom<T> px, Polynom<T> y, Polynom<T> py, Polynom<T> d, Polynom<T> s) {
     unordered_map<string, Polynom<T>> mp;
   	Polynom<T> q11 = Q11(L, K1L, d);
@@ -111,6 +144,40 @@ template <class T> Polmap<T> QDMap(double L,double K1L, Polynom<T> x, Polynom<T>
   	Polynom<T> q33 = Q33(L, K1L, d);
   	Polynom<T> q34 = Q34(L, K1L, d);
   	Polynom<T> q43 = Q43(L, K1L, d);
+  	mp[xstring] = q33 * x + q34 * px;
+  	mp[pxstring] = q43 * x  + q33 * px;
+  	mp[ystring] = q11 * y + q12 * py;
+  	mp[pystring] = q21 * y + q11 * py;
+  	mp[dstring] = d;
+  	mp[sstring] = s;
+  	return Polmap<T>(mp);
+}
+
+template <class T> Polmap<T> QFMapAchromat(double L, double K1L, Polynom<T> x, Polynom<T> px, Polynom<T> y, Polynom<T> py, Polynom<T> d, Polynom<T> s) {
+     unordered_map<string, Polynom<T>> mp;
+  	Polynom<T> q11 = Q11A(L, K1L, d);
+  	Polynom<T> q12 = Q12A(L, K1L, d);
+  	Polynom<T> q21 = Q21A(L, K1L, d);
+  	Polynom<T> q33 = Q33A(L, K1L, d);
+  	Polynom<T> q34 = Q34A(L, K1L, d);
+  	Polynom<T> q43 = Q43A(L, K1L, d);
+  	mp[xstring] = q11 * x + q12 * px;
+  	mp[pxstring] = q21 * x  + q11 * px;
+  	mp[ystring] = q33 * y + q34 * py;
+  	mp[pystring] = q43 * y + q33 * py;
+  	mp[dstring] = d;
+  	mp[sstring] = s;
+  	return Polmap<T>(mp);
+}
+
+template <class T> Polmap<T> QDMapAchromat(double L,double K1L, Polynom<T> x, Polynom<T> px, Polynom<T> y, Polynom<T> py, Polynom<T> d, Polynom<T> s) {
+  	unordered_map<string, Polynom<T>> mp;
+  	Polynom<T> q11 = Q11A(L, K1L, d);
+  	Polynom<T> q12 = Q12A(L, K1L, d);
+  	Polynom<T> q21 = Q21A(L, K1L, d);
+  	Polynom<T> q33 = Q33A(L, K1L, d);
+  	Polynom<T> q34 = Q34A(L, K1L, d);
+  	Polynom<T> q43 = Q43A(L, K1L, d);
   	mp[xstring] = q33 * x + q34 * px;
   	mp[pxstring] = q43 * x  + q33 * px;
   	mp[ystring] = q11 * y + q12 * py;
@@ -298,7 +365,7 @@ template <class T> Polmap<T> mapForElement(unordered_map<string, string> e, vect
 	double k3l = atof(e["K3L"].c_str());
 	double k4l = atof(e["K4L"].c_str());
 	double angle = atof(e["ANGLE"].c_str());
-
+	double delta = atof(e["DELTAP"].c_str());
 	string drift = "DRIFT";
 	string quadrupole = "QUADRUPOLE";
 	string sbend = "SBEND";
@@ -310,14 +377,21 @@ template <class T> Polmap<T> mapForElement(unordered_map<string, string> e, vect
     	if (keyword.compare(drift) == 0) 
 		return DRIFTMap(l, x, px, y, py, d, s);
     	
-    	if (keyword.compare(quadrupole) == 0)
+    	if (keyword.compare(quadrupole) == 0 && e["ACHROMAT"].compare("F") == 0)
 		if (l != 0) { 
         		if (k1l > 0)
           		return QFMap(l, k1l, x, px, y, py, d, s);
         		else
           		return QDMap(l, k1l, x, px, y, py, d, s);
           } 
-          
+    	if (keyword.compare(quadrupole) == 0 && e["ACHROMAT"].compare("T") == 0)
+		if (l != 0) { 
+        		if (k1l > 0)
+          		return QFMapAchromat(l, k1l, x, px, y, py, d, s);
+        		else
+          		return QDMapAchromat(l, k1l, x, px, y, py, d, s);
+          }       
+
     	if (keyword.compare(sbend) == 0) 
      	return DIMap(l, angle, x, px, y, py, d, s);        
     	if (keyword.compare(quadrupole) == 0)
