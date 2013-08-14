@@ -14,9 +14,6 @@ sys.path.append('../../')
 
 from metaclass2 import twiss2
 from mapclass import Map2
-#from mapclassparallel import Map2
-#from mapclasspool import Map2
-
 
 ### Argument reading
 
