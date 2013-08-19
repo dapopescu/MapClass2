@@ -54,9 +54,6 @@ void initPol(unsigned int *exps, unsigned int dim, double *coeffs, unsigned int 
 //		  printf("%d ", exps[i]);
 }
 
-/**
- * Run a multivariate polynomial multiplication using CUDA
- */
 int polynomMultiply(int argc, char **argv, int block_size, unsigned int &dimA, unsigned int &dimB, 
 		    unsigned int &order, unsigned int &nvars, int n)
 {
@@ -228,7 +225,7 @@ int polynomMultiply(int argc, char **argv, int block_size, unsigned int &dimA, u
  */
 int main(int argc, char **argv)
 {
-    printf("[Multivariate Polynomial Multiplication Using CUDA] - Starting...\n");
+    printf("Starting...\n");
 
     if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
         checkCmdLineFlag(argc, (const char **)argv, "?"))
